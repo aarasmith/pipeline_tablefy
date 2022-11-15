@@ -6,26 +6,26 @@ Created on Tue Nov 15 10:53:59 2022
 @author: andara
 """
 
+import os
+from dotenv import load_dotenv
+import psycopg2
+load_dotenv()
+
 def get_connection():
     return psycopg2.connect(
-                host=host,
-                database=database,
-                user=user,
-                password=password,
-                port=port)
+                host=os.environ['PG_HOST'],
+                database=os.environ['PG_DATABASE'],
+                user=os.environ['PG_USER'],
+                password=os.environ['PG_PASSWORD'],
+                port=os.environ['PG_PORT']
+                )
 
 def get_schema():
     with open('schema.sql') as f:
         return f.read()
     
 def create_tables():
-    with psycopg2.connect(
-                host=host,
-                database=database,
-                user=user,
-                password=password,
-                port=port
-            ) as conn:
+    with get_connection() as conn:
                 cur = conn.cursor()
                 cur.execute(get_schema())
 

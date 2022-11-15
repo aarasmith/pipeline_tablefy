@@ -6,22 +6,20 @@ Created on Tue Nov 15 09:42:07 2022
 @author: andara
 """
 
-import psycopg2
 import os
+from dotenv import load_dotenv
+import db
+
+load_dotenv()
 
 def get_cred_id():
-    return credential_id
+    return os.environ['CREDENTIAL_ID']
 
 def get_token_id():
-    return token_id
+    return os.environ['TOKEN_ID']
 
 from streamsets.sdk import ControlHub
 ############### pipeline attributes
-sch = ControlHub(credential_id=get_cred_id(), token=get_token_id())
-
-pipeline_data = sch.pipelines.get_all()
-
-#stage2 = pipeline_data.get_all()
 
 def get_pipelines(sch, pipeline_data):
     atr_list = ['pipelineId', 'name', 'description', 'pipelineLabels', 'version', 'executorType']
@@ -45,10 +43,10 @@ def get_pipelines(sch, pipeline_data):
 
 ############## pipeline stages
 
-pipeline_data = sch.pipelines
-stage2 = pipeline_data.get_all()
-
 def get_stages(sch, pipeline_data):    
+    
+    values_to_insert = []
+    
     for pipeline in pipeline_data:
     
         pipeline_id = pipeline.pipeline_id
@@ -79,35 +77,7 @@ def get_pipeline_info():
    sch = ControlHub(credential_id=get_cred_id(), token=get_token_id())
    pipeline_data = sch.pipelines.get_all()
    
-   insert_pipelines(get_pipelines(sch, pipeline_data))
-   insert_stages(get_stages(sch, pipeline_data))
-
-#value_dict = dict(zip(atr_list, value_list))
-
-master_dict_keys = list(range(0, len(sch.pipelines)))
-
-master_dict = dict(zip(master_dict_keys, dict_list))
+   db.insert_pipelines(get_pipelines(sch, pipeline_data))
+   db.insert_stages(get_stages(sch, pipeline_data))
 
 
-with psycopg2.connect(
-            host=host,
-            database=database,
-            user=user,
-            password=password,
-            port=port
-        ) as conn:
-            cur = conn.cursor()
-            cur.execute('select * from PIPELINES;')
-
-cursor = db_connection.cursor()
-    cursor.executemany(
-            'INSERT INTO posts VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) ON CONFLICT (id) DO NOTHING',
-            posts
-            )
-    db_connection.commit()
-
-
-{k: v for d in test_entry[3] for k, v in d.items()}.get('label')
-{k: v for d in test for k, v in d.items()}
-
-[label.get('label') for label in test]
